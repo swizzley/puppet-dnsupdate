@@ -1,0 +1,5 @@
+update delete <%= @fqdn %> A
+update add <%= @fqdn %> 1140  A <%= @ipaddress %>
+send
+update add <%= @ipaddress.split(".").reverse.join('.') %>.in-addr.arpa 1200 IN PTR <%= @fqdn %>
+send
