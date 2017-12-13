@@ -16,19 +16,12 @@
 class dnsupdate {
   # Package
   case $facts['os']['family'] {
-    'RedHat': {
-      if ! defined(Package['bind-utils']) {
-        package { 'bind-utils':
-          ensure => installed,
-        }
-      }
-    }
-    'Debian': {
-      if ! defined(Package['dnsutils']) {
-        package { 'dnsutils':
-          ensure => installed,
-        }
-      }
+    'RedHat': { $package = 'bind-utils' }
+    'Debian': { $package = 'dnsutils' }
+  }
+  if ! defined(Package['bind-utils']) {
+    package { $package:
+      ensure => installed,
     }
   }
   # Update
@@ -41,6 +34,6 @@ class dnsupdate {
     command  => 'nsupdate /etc/nsupdate',
     provider => 'shell',
     unless   => "grep $(nslookup $(hostname -f) |sed -n '/^Name/{n;s/.*: //p}') /etc/nsupdate && grep $(nslookup $(hostname -i)|egrep -o '^[0-9]+.[0-9]+.[0-9]+.[0-9]+') /etc/nsupdate",
-    require  => Package['bind-utils'],
+    require  => Package[$package],
   }
 }
