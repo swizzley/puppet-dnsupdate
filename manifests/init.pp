@@ -4,7 +4,7 @@
 #
 # Parameters: none
 #
-# Actions: 
+# Actions:
 # It makes sure bind-utils is installed which has the nsupdate binary.
 # It makes a file /etc/nsupdate used for pushing updates and for
 # verifying that updates need to be made by queuring DNS first.
@@ -15,8 +15,22 @@
 #
 class dnsupdate {
   # Package
-  package { 'bind-utils': ensure => 'installed', }
-
+  case $facts['os']['family'] {
+    'RedHat': {
+      if ! defined(Package['bind-utils']) {
+        package { 'bind-utils':
+          ensure => installed,
+        }
+      }
+    }
+    'Debian': {
+      if ! defined(Package['dnsutils']) {
+        package { 'dnsutils':
+          ensure => installed,
+        }
+      }
+    }
+  }
   # Update
   file { '/etc/nsupdate':
     ensure  => 'present',
