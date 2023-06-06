@@ -17,7 +17,7 @@ class dnsupdate {
   # Package
   case $facts['os']['family'] {
     'RedHat': { $package = 'bind-utils' }
-    'Debian': { $package = 'dnsutils' }
+    default: { $package = 'dnsutils' }
   }
   if ! defined(Package['bind-utils']) {
     package { $package:
@@ -26,10 +26,10 @@ class dnsupdate {
   }
   # Update
   file { '/etc/nsupdate':
-    ensure  => 'present',
-    content => template('dnsupdate/nsupdate.erb')
-  } ->
-  exec { 'nsupdate':
+    ensure  => 'file',
+    content => template('dnsupdate/nsupdate.erb'),
+  }
+  -> exec { 'nsupdate':
     path     => ['/bin', '/usr/bin'],
     command  => 'nsupdate /etc/nsupdate',
     provider => 'shell',
